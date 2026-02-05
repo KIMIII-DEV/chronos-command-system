@@ -1,0 +1,16 @@
+name = "chronos-command-system"
+pages_build_output_dir = "dist"
+
+[vars]
+# Production Environment Variables (A6.1)
+ENABLE_OSS_AI = "true"
+MODE = "oss"
+SUPABASE_URL = "https://ilxooyinsjkwxaxhweoc.supabase.co"
+
+[env.production.vars]
+NODE_ENV = "production"
+
+[functions]
+# Cloudflare Pages Functions configuration
+# Global Auth Middleware is handled in functions/_middleware.ts
+EOF
