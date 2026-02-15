@@ -1,76 +1,85 @@
-import { useState } from 'react';
-import { useLocation } from 'wouter';
-import '../styles/effects.css';
+import { useEffect, useRef } from "react";
 
 /**
- * CHRONOS OSS - PUBLIC LAYER (A2.1)
- * "Access Denied" gate with TOTP authentication.
+ * FASSADE
+ * Pure visual presence. No function.
  */
 
-export default function PublicLayer() {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState(false);
-  const [, setLocation] = useLocation();
+export default function Index() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleVerify = async () => {
-    try {
-      const response = await fetch('/api/auth/verify-totp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, email: 'admin@chronos.ai' }) // Default admin for POC
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        localStorage.setItem('sessionToken', data.token);
-        setLocation('/private');
-      } else {
-        throw new Error(data.error);
+  // Film Grain
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let animationId: number;
+
+    const render = () => {
+      const imageData = ctx.createImageData(canvas.width, canvas.height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const noise = Math.random() * 6;
+        data[i] = noise;
+        data[i + 1] = noise;
+        data[i + 2] = noise;
+        data[i + 3] = 255;
       }
-    } catch (err) {
-      setError(true);
-      setTimeout(() => setError(false), 2000);
-    }
-  };
+
+      ctx.putImageData(imageData, 0, 0);
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animationId);
+  }, []);
 
   return (
-    <div className="relative w-full h-screen bg-black flex flex-col items-center justify-center font-mono overflow-hidden">
-      <div className="scanlines absolute inset-0 pointer-events-none opacity-10" />
-      <div className="vignette absolute inset-0 pointer-events-none" />
-      
-      <div className={`z-10 text-center space-y-8 ${error ? 'animate-glitch' : ''}`}>
-        <h1 className="text-red-600 text-6xl font-bold tracking-tighter drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
-          ACCESS DENIED
-        </h1>
-        
-        <div className="space-y-2">
-          <p className="text-gray-500 text-xs tracking-[0.5em] uppercase">Security Clearance Required</p>
-          <div className="w-64 h-px bg-red-900 mx-auto opacity-50" />
-        </div>
+    <div className="relative h-screen w-screen bg-black overflow-hidden">
+      {/* Film Grain */}
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none fixed inset-0 opacity-[0.015] mix-blend-overlay"
+      />
 
-        <div className="flex flex-col items-center space-y-4">
-          <input
-            type="text"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="ENTER TOKEN"
-            className="bg-transparent border border-red-900 text-red-500 text-center p-4 focus:outline-none focus:border-red-500 transition-all tracking-[1em] pl-[1.5em]"
-          />
-          <button
-            onClick={handleVerify}
-            className="text-red-900 hover:text-red-500 text-xs tracking-widest transition-colors uppercase"
+      {/* Split Layout */}
+      <div className="flex h-full">
+        {/* Left Panel — Symbol */}
+        <div className="relative flex h-full w-1/2 items-center justify-center border-r border-white/5">
+          {/* Asterisk Symbol */}
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+            className="opacity-90"
           >
-            Authenticate
-          </button>
+            <line x1="60" y1="20" x2="60" y2="100" stroke="white" strokeWidth="1.5" />
+            <line x1="20" y1="60" x2="100" y2="60" stroke="white" strokeWidth="1.5" />
+            <line x1="32" y1="32" x2="88" y2="88" stroke="white" strokeWidth="1.5" />
+            <line x1="88" y1="32" x2="32" y2="88" stroke="white" strokeWidth="1.5" />
+            <line x1="42" y1="24" x2="78" y2="96" stroke="white" strokeWidth="1.5" />
+            <line x1="78" y1="24" x2="42" y2="96" stroke="white" strokeWidth="1.5" />
+            <line x1="24" y1="42" x2="96" y2="78" stroke="white" strokeWidth="1.5" />
+            <line x1="96" y1="42" x2="24" y2="78" stroke="white" strokeWidth="1.5" />
+          </svg>
         </div>
-      </div>
 
-      <div className="absolute bottom-8 left-8 text-[10px] text-gray-800 space-y-1">
-        <p>TERMINAL: CHRONOS_V2_OSS</p>
-        <p>ENCRYPTION: AES-256-GCM</p>
-        <p>STATUS: MONITORING ACTIVE</p>
+        {/* Right Panel — Text */}
+        <div className="relative flex h-full w-1/2 items-center justify-center">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2">
+            <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/70">
+              ACCESS DENIED
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
