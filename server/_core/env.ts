@@ -1,15 +1,31 @@
+/**
+ * CHRONOS OSS - ENVIRONMENT CONFIGURATION
+ * Updated for Cloudflare Pages compatibility (no global process.env).
+ */
+
+// Helper to safely access environment variables in both Node and Edge
+const getEnv = (key: string, defaultValue: string = ""): string => {
+  // @ts-ignore - process might not be defined in Edge
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key] as string;
+  }
+  // For Cloudflare Pages, variables are often injected or need to be accessed via context
+  // But for static build-time or global vars, we use this fallback
+  return defaultValue;
+};
+
 export const ENV = {
-  appId: process.env.VITE_APP_ID ?? "",
-  cookieSecret: process.env.JWT_SECRET ?? "",
-  databaseUrl: process.env.DATABASE_URL ?? "",
-  oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
-  ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
-  isProduction: process.env.NODE_ENV === "production",
-  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
-  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  appId: getEnv("VITE_APP_ID"),
+  cookieSecret: getEnv("JWT_SECRET"),
+  databaseUrl: getEnv("DATABASE_URL"),
+  oAuthServerUrl: getEnv("OAUTH_SERVER_URL"),
+  ownerOpenId: getEnv("OWNER_OPEN_ID"),
+  isProduction: getEnv("NODE_ENV") === "production",
+  forgeApiUrl: getEnv("BUILT_IN_FORGE_API_URL"),
+  forgeApiKey: getEnv("BUILT_IN_FORGE_API_KEY"),
   // Supabase OSS AI Stack
-  supabaseUrl: process.env.SUPABASE_URL ?? "",
-  supabaseAnonKey: process.env.SUPABASE_ANON_KEY ?? "",
+  supabaseUrl: getEnv("SUPABASE_URL"),
+  supabaseAnonKey: getEnv("SUPABASE_ANON_KEY"),
 };
 
 export const env = ENV;
