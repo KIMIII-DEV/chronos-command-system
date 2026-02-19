@@ -1,16 +1,17 @@
 name = "chronos-command-system"
+compatibility_date = "2024-01-01"
 pages_build_output_dir = "dist"
 
+# Node.js compatibility für @epic-web/totp, jose, etc.
+compatibility_flags = ["nodejs_compat"]
+
+# Environment Variables für Pages werden NICHT hier gesetzt!
+# Stattdessen: Cloudflare Dashboard → Pages → Settings → Environment variables
+
+# Falls du trotzdem lokale Entwicklung brauchst (dev only):
 [vars]
-# Production Environment Variables (A6.1)
-ENABLE_OSS_AI = "true"
 MODE = "oss"
-SUPABASE_URL = "https://ilxooyinsjkwxaxhweoc.supabase.co"
+ENABLE_OSS_AI = "true"
 
-[env.production.vars]
-NODE_ENV = "production"
-
-[functions]
-# Cloudflare Pages Functions configuration
-# Global Auth Middleware is handled in functions/_middleware.ts
-EOF
+# WICHTIG: KEINE Secrets hier!
+# SUPABASE_URL und SUPABASE_ANON_KEY werden NUR im Dashboard gesetzt
